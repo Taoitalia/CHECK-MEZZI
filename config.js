@@ -3,11 +3,12 @@
    ============================================================
 
    1. URL_SCRIPT
-      L'indirizzo che Google ti ha dato quando hai pubblicato lo
-      script (Deploy > Nuovo deployment > App web). Finisce con /exec
+     https://script.google.com/macros/s/AKfycbwHanjijJcXxYhFYAwcUqjukLkLftRMPitrFex1LrUEFb4Bsqx_yUcxUqD5WvuIqJM/exec
+
+
 
    2. CODICE_APP
-      Deve essere identico a CODICE_APP scritto dentro lo script Google.
+     mezzi-app-202612
 
    Attenzione: questo file e' pubblico su GitHub, quindi qui dentro
    NON va mai il codice dell'ufficio, solo quello della app.
