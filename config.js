@@ -15,7 +15,7 @@
 
 window.CONFIG = {
 
-  URL_SCRIPT: "https://script.google.com/macros/s/AKfycby5s_mnMOpZFszRjfp7zqwocK58RdE4UM3xiqNaSBjFRxcKlol-0KHDG112hmPh5W0/exec",
+  URL_SCRIPT: "https://script.google.com/macros/s/AKfycbw4SFzjk0XuJW3z9Idb7bqvORMPYLaamz-zLEBdRofUwQdFh0sSkj2GzLGQohIwqVM/exec",
 
   CODICE_APP: "mezzi-app-202612",
 
