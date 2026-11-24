@@ -15,9 +15,9 @@
 
 window.CONFIG = {
 
-  URL_SCRIPT: "INCOLLA_QUI_INDIRIZZO_CHE_FINISCE_CON_EXEC",
+  URL_SCRIPT: "https://script.google.com/macros/s/AKfycby5s_mnMOpZFszRjfp7zqwocK58RdE4UM3xiqNaSBjFRxcKlol-0KHDG112hmPh5W0/exec",
 
-  CODICE_APP: "cambia-questo-codice-app",
+  CODICE_APP: "mezzi-app-202612",
 
   /* Elenco usato solo al primo avvio, prima che la app riesca a
      collegarsi a Google. Dopo viene sempre aggiornato dal foglio. */
