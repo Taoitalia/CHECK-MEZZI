@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16233a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Checklist">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icona-192.png">
+<link rel="apple-touch-icon" href="icona-180.png">
+<title>Checklist automezzi</title>
+<style>
+  :root{
+    --inchiostro:#16233a; --inchiostro-2:#2b3d5c; --carta:#f4f2ed; --bianco:#fff;
+    --grigio:#6b7589; --bordo:#dcd8cf;
+    --ok:#1f7a45; --ok-chiaro:#e4f3ea;
+    --allarme:#b3321f; --allarme-chiaro:#fbe9e5;
+    --ambra:#a86a12; --ambra-chiaro:#fdf4e3;
+    --raggio:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--carta); color:var(--inchiostro);
+    font-size:17px; line-height:1.45;
+    padding-bottom:env(safe-area-inset-bottom);
+    overscroll-behavior-y:contain;
+  }
+  .testata{
+    background:var(--inchiostro); color:#fff;
+    padding:calc(14px + env(safe-area-inset-top)) 18px 14px;
+    display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:10;
+  }
+  .testata h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.2px;flex:1}
+  .testata small{display:block;font-weight:400;opacity:.72;font-size:13px;letter-spacing:0}
+  .icona-tonda{
+    width:34px;height:34px;border-radius:50%;background:var(--inchiostro-2);
+    display:grid;place-items:center;font-size:14px;font-weight:700;flex:none
+  }
+  .barra-avanz{height:4px;background:rgba(255,255,255,.18)}
+  .barra-avanz > div{height:100%;background:#8fb8e8;transition:width .25s ease}
+  main{padding:20px 18px 44px;max-width:640px;margin:0 auto}
+  h2{font-size:22px;margin:0 0 6px;line-height:1.25;letter-spacing:-.2px}
+  p.sotto{color:var(--grigio);margin:0 0 22px;font-size:15px}
+  label{display:block;font-weight:600;font-size:14px;margin:0 0 7px}
+  input[type=text],select,textarea{
+    width:100%;padding:15px;font-size:17px;font-family:inherit;color:inherit;
+    border:1.5px solid var(--bordo);border-radius:var(--raggio);background:var(--bianco)
+  }
+  textarea{min-height:130px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2.5px solid #7aa7de;outline-offset:1px;border-color:transparent}
+  button{font-family:inherit;font-size:17px;border:none;border-radius:var(--raggio);cursor:pointer}
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;padding:17px;font-weight:650;background:var(--inchiostro);color:#fff;margin-top:14px
+  }
+  .btn:disabled{opacity:.45}
+  .btn.chiaro{background:var(--bianco);color:var(--inchiostro);border:1.5px solid var(--bordo);font-weight:600}
+  .btn.allarme{background:var(--allarme)}
+  .scelta{
+    display:block;width:100%;text-align:left;padding:20px;margin-top:14px;
+    border-radius:var(--raggio);font-weight:700;font-size:19px;letter-spacing:.2px;color:#fff
+  }
+  .scelta small{display:block;font-weight:500;font-size:14px;opacity:.85;letter-spacing:0;margin-top:3px}
+  .scelta.ok{background:var(--ok)}
+  .scelta.allarme{background:var(--allarme)}
+  .scheda{background:var(--bianco);border:1.5px solid var(--bordo);border-radius:var(--raggio);padding:18px;margin-bottom:16px}
+  .scheda h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--grigio)}
+  .aiuto{font-size:13.5px;color:var(--grigio);margin-top:7px}
+  .verifica{
+    background:var(--bianco);border:1.5px solid var(--bordo);border-radius:var(--raggio);
+    padding:28px 20px;text-align:center;margin-bottom:4px
+  }
+  .verifica .num{font-size:13px;font-weight:700;letter-spacing:1.2px;color:var(--grigio);text-transform:uppercase}
+  .verifica .titolo{font-size:28px;font-weight:700;line-height:1.2;margin-top:10px;letter-spacing:-.4px}
+  .riga{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--bordo);font-size:15px}
+  .riga:last-child{border-bottom:none}
+  .riga .voce{flex:1}
+  .riga .nota{color:var(--allarme);font-size:14px;margin-top:3px;word-break:break-word}
+  .pillola{font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;height:fit-content}
+  .pillola.ok{background:var(--ok-chiaro);color:var(--ok)}
+  .pillola.allarme{background:var(--allarme-chiaro);color:var(--allarme)}
+  .avviso{border-radius:var(--raggio);padding:14px 16px;font-size:14.5px;margin-bottom:16px;border:1.5px solid}
+  .avviso.attesa{background:var(--ambra-chiaro);border-color:#e9d4a8;color:var(--ambra)}
+  .avviso.errore{background:var(--allarme-chiaro);border-color:#f0c4bb;color:var(--allarme)}
+  .esito-grande{text-align:center;padding:30px 0 10px}
+  .esito-grande .bollo{
+    width:86px;height:86px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;
+    font-size:44px;color:#fff;background:var(--ok)
+  }
+  .esito-grande .bollo.attesa{background:var(--ambra)}
+  .nascosto{display:none !important}
+  .pie{text-align:center;color:var(--grigio);font-size:13px;margin-top:26px}
+  .link{background:none;border:none;color:var(--grigio);text-decoration:underline;font-size:14px;padding:8px}
+</style>
+</head>
+<body>
+
+<header class="testata">
+  <div class="icona-tonda" id="iniziali">—</div>
+  <h1 id="intestazione">Checklist automezzi<small id="sottotitolo">controllo giornaliero</small></h1>
+</header>
+<div class="barra-avanz"><div id="avanzamento" style="width:0%"></div></div>
+
+<main>
+
+  <!-- 1. PRIMO ACCESSO -->
+  <section id="s-registrazione" class="nascosto">
+    <h2>Benvenuto</h2>
+    <p class="sotto">Questo telefono viene collegato al tuo nominativo. Lo inserisci una volta sola: dalle prossime volte la app ti riconosce.</p>
+    <div class="scheda">
+      <label for="campo-nome">Nome e cognome dell'autista</label>
+      <input type="text" id="campo-nome" autocomplete="name" autocapitalize="words"
+             placeholder="Es. Mario Rossi" enterkeyhint="done">
+    </div>
+    <button class="btn" id="btn-registra">Conferma e continua</button>
+  </section>
+
+  <!-- 2. HOME -->
+  <section id="s-home" class="nascosto">
+    <div id="avviso-coda" class="avviso attesa nascosto"></div>
+    <div id="avviso-config" class="avviso errore nascosto"></div>
+    <h2 id="saluto">Pronto</h2>
+    <p class="sotto" id="data-oggi"></p>
+    <div class="scheda">
+      <label for="campo-mezzo">Mezzo da controllare</label>
+      <select id="campo-mezzo"></select>
+      <div id="riga-targa-libera" class="nascosto" style="margin-top:12px">
+        <label for="campo-targa-libera">Targa del mezzo</label>
+        <input type="text" id="campo-targa-libera" placeholder="Es. AB123CD"
+               autocapitalize="characters" autocomplete="off">
+      </div>
+      <div style="margin-top:16px">
+        <label for="campo-km">Chilometri attuali</label>
+        <input type="text" id="campo-km" inputmode="numeric" autocomplete="off"
+               placeholder="Es. 128450" enterkeyhint="done">
+        <div class="aiuto" id="aiuto-km">Leggi il contachilometri del mezzo.</div>
+      </div>
+    </div>
+    <button class="btn" id="btn-inizia">Inizia la checklist</button>
+    <div class="pie"><button class="link" id="btn-impostazioni">Impostazioni</button></div>
+  </section>
+
+  <!-- 3. VERIFICA -->
+  <section id="s-verifica" class="nascosto">
+    <div class="verifica">
+      <div class="num" id="num-verifica"></div>
+      <div class="titolo" id="testo-verifica"></div>
+    </div>
+    <button class="scelta ok" id="btn-ok">TUTTO OK<small>nessun problema riscontrato</small></button>
+    <button class="scelta allarme" id="btn-anomalia">SEGNALAZIONE ANOMALIA<small>descrivi il problema nella schermata successiva</small></button>
+    <div class="pie"><button class="link" id="btn-indietro">Torna alla verifica precedente</button></div>
+  </section>
+
+  <!-- 4. ANOMALIA -->
+  <section id="s-anomalia" class="nascosto">
+    <h2 id="titolo-anomalia">Segnalazione anomalia</h2>
+    <p class="sotto">Descrivi il problema riscontrato. La segnalazione arriva in ufficio insieme alla checklist.</p>
+    <div class="scheda">
+      <label for="campo-nota">Problema riscontrato</label>
+      <textarea id="campo-nota" placeholder="Es. pneumatico anteriore destro con battistrada sotto il minimo"></textarea>
+    </div>
+    <button class="btn allarme" id="btn-conferma-anomalia">Conferma e prosegui</button>
+    <button class="btn chiaro" id="btn-annulla-anomalia">Annulla, era tutto a posto</button>
+  </section>
+
+  <!-- 5. RIEPILOGO -->
+  <section id="s-riepilogo" class="nascosto">
+    <h2>Riepilogo</h2>
+    <p class="sotto" id="riepilogo-sotto"></p>
+    <div class="scheda"><div id="elenco-riepilogo"></div></div>
+    <button class="btn" id="btn-invia">Invia la checklist</button>
+    <div class="pie"><button class="link" id="btn-annulla-tutto">Annulla e ricomincia</button></div>
+  </section>
+
+  <!-- 6. ESITO -->
+  <section id="s-esito" class="nascosto">
+    <div class="esito-grande">
+      <div class="bollo" id="bollo-esito">✓</div>
+      <h2 id="titolo-esito">Checklist inviata</h2>
+      <p class="sotto" id="testo-esito"></p>
+    </div>
+    <button class="btn" id="btn-fine">Torna all'inizio</button>
+  </section>
+
+  <!-- 7. IMPOSTAZIONI -->
+  <section id="s-impostazioni" class="nascosto">
+    <h2>Impostazioni</h2>
+    <p class="sotto">Dati di questo telefono.</p>
+    <div class="scheda">
+      <h3>Autista collegato</h3>
+      <input type="text" id="campo-nome-mod" autocapitalize="words">
+      <button class="btn chiaro" id="btn-salva-nome">Salva il nominativo</button>
+    </div>
+    <div class="scheda">
+      <h3>Collegamento</h3>
+      <div id="stato-collegamento" style="font-size:15px"></div>
+      <button class="btn chiaro" id="btn-aggiorna">Aggiorna elenco mezzi e verifiche</button>
+      <button class="btn chiaro" id="btn-invia-coda">Invia le checklist in attesa</button>
+    </div>
+    <button class="btn" id="btn-chiudi-impostazioni">Chiudi</button>
+  </section>
+
+</main>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var CFG = window.CONFIG || {};
+  var CHIAVI = {
+    autista: "cq.autista", dispositivo: "cq.dispositivo",
+    config: "cq.config", coda: "cq.coda", ultimoMezzo: "cq.ultimoMezzo"
+  };
+
+  var el = function (id) { return document.getElementById(id); };
+  var stato = { voci: [], mezzi: [], indice: 0, esiti: [], targa: "", autista: "", km: null };
+
+  function configurata() {
+    return CFG.URL_SCRIPT && CFG.URL_SCRIPT.indexOf("/exec") > -1;
+  }
+
+  // ---------- memoria locale (non deve mai far morire la app) ----------
+  function leggi(chiave, riserva) {
+    try { var v = localStorage.getItem(chiave); return v === null ? riserva : JSON.parse(v); }
+    catch (e) { return riserva; }
+  }
+  function scrivi(chiave, valore) {
+    try { localStorage.setItem(chiave, JSON.stringify(valore)); return true; }
+    catch (e) { return false; }
+  }
+
+  // ---------- navigazione tra schermate ----------
+  var SCHERMATE = ["s-registrazione","s-home","s-verifica","s-anomalia",
+                   "s-riepilogo","s-esito","s-impostazioni"];
+  function mostra(id) {
+    SCHERMATE.forEach(function (s) { el(s).classList.toggle("nascosto", s !== id); });
+    window.scrollTo(0, 0);
+  }
+  function avanzamento(percento) { el("avanzamento").style.width = percento + "%"; }
+
+  // ---------- collegamento a Google ----------
+  function scaricaConfig() {
+    if (!configurata()) return Promise.reject(new Error("non configurata"));
+    var url = CFG.URL_SCRIPT + "?azione=config&codice=" +
+              encodeURIComponent(CFG.CODICE_APP) + "&t=" + Date.now();
+    return fetch(url, { method: "GET", redirect: "follow" })
+      .then(function (r) { if (!r.ok) throw new Error("risposta " + r.status); return r.json(); })
+      .then(function (c) {
+        if (!c || c.ok !== true) throw new Error((c && c.errore) || "rifiutata");
+        scrivi(CHIAVI.config, { voci: c.voci || [], mezzi: c.mezzi || [] });
+        return c;
+      });
+  }
+
+  /* Google Apps Script rifiuta le chiamate con Content-Type application/json
+     perche' il browser manda prima una richiesta di verifica che lo script non
+     sa gestire. Si manda quindi come testo semplice: il contenuto resta JSON. */
+  function inviaUna(pacco) {
+    if (!configurata()) return Promise.reject(new Error("non configurata"));
+    return fetch(CFG.URL_SCRIPT, {
+      method: "POST",
+      redirect: "follow",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(pacco)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("risposta " + r.status);
+      return r.json();
+    }).then(function (d) {
+      if (!d || d.ok !== true) throw new Error((d && d.errore) || "rifiutata");
+      return d;
+    });
+  }
+
+  // ---------- coda di invio ----------
+  function coda() { var c = leggi(CHIAVI.coda, []); return Array.isArray(c) ? c : []; }
+  function aggiornaAvvisoCoda() {
+    var n = coda().length, box = el("avviso-coda");
+    box.classList.toggle("nascosto", n === 0);
+    if (n > 0) {
+      box.textContent = (n === 1 ? "1 checklist non ancora trasmessa" : n + " checklist non ancora trasmesse") +
+        ": partiranno da sole appena torna il collegamento a internet.";
+    }
+  }
+  function svuotaCoda() {
+    var inCoda = coda();
+    if (!inCoda.length) return Promise.resolve(0);
+    var inviate = 0;
+    return inCoda.reduce(function (catena, pacco) {
+      return catena.then(function () {
+        return inviaUna(pacco).then(function () {
+          inviate++;
+          scrivi(CHIAVI.coda, coda().filter(function (p) { return p.uuid !== pacco.uuid; }));
+        });
+      });
+    }, Promise.resolve())
+      .catch(function () {})
+      .then(function () { aggiornaAvvisoCoda(); return inviate; });
+  }
+
+  function idCasuale() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return "id-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10);
+  }
+
+  // ---------- primo accesso ----------
+  function iniziali(nome) {
+    var p = nome.trim().split(/\s+/);
+    return ((p[0] || "")[0] || "").toUpperCase() + ((p[1] || "")[0] || "").toUpperCase();
+  }
+  function registraAutista(nome) {
+    nome = String(nome || "").trim().replace(/\s+/g, " ");
+    if (nome.length < 3 || nome.indexOf(" ") < 0) {
+      alert("Inserisci nome e cognome per esteso.");
+      return false;
+    }
+    scrivi(CHIAVI.autista, nome);
+    if (!leggi(CHIAVI.dispositivo, null)) scrivi(CHIAVI.dispositivo, idCasuale());
+    stato.autista = nome;
+    el("iniziali").textContent = iniziali(nome) || "—";
+    el("sottotitolo").textContent = nome;
+    return true;
+  }
+
+  // ---------- home ----------
+  function preparaHome() {
+    var c = leggi(CHIAVI.config, null) || {};
+    stato.voci = (c.voci && c.voci.length) ? c.voci : (CFG.VERIFICHE_INIZIALI || []);
+    stato.mezzi = c.mezzi || [];
+
+    var sel = el("campo-mezzo");
+    sel.innerHTML = "";
+    if (!stato.mezzi.length) sel.appendChild(new Option("— elenco non ancora scaricato —", ""));
+    stato.mezzi.forEach(function (m) {
+      sel.appendChild(new Option(
+        m.descrizione ? (m.targa + " — " + m.descrizione) : m.targa, m.targa));
+    });
+    sel.appendChild(new Option("Altro mezzo (inserisco la targa)", "__altro__"));
+
+    var ultimo = leggi(CHIAVI.ultimoMezzo, "");
+    if (ultimo) sel.value = ultimo;
+    el("campo-km").value = "";
+    aggiornaCampoMezzo();
+
+    el("data-oggi").textContent = new Date().toLocaleDateString("it-IT",
+      { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    el("saluto").textContent = "Ciao " + stato.autista.split(" ")[0];
+
+    var avvisoCfg = el("avviso-config");
+    avvisoCfg.classList.toggle("nascosto", configurata());
+    if (!configurata()) {
+      avvisoCfg.textContent = "La app non è ancora collegata all'ufficio: va completato il file config.js. Le checklist compilate restano salvate sul telefono.";
+    }
+
+    aggiornaAvvisoCoda();
+    avanzamento(0);
+    mostra("s-home");
+  }
+  function aggiornaCampoMezzo() {
+    var scelto = el("campo-mezzo").value;
+    el("riga-targa-libera").classList.toggle("nascosto", scelto !== "__altro__");
+    var km = ultimiKm(scelto);
+    el("aiuto-km").textContent = km
+      ? "Ultima lettura registrata: " + numeroItaliano(km) + " km."
+      : "Leggi il contachilometri del mezzo.";
+  }
+  /** Ultimo valore noto per quel mezzo, se l'ufficio lo ha comunicato. */
+  function ultimiKm(targa) {
+    for (var i = 0; i < stato.mezzi.length; i++) {
+      if (stato.mezzi[i].targa === targa) {
+        var k = parseInt(stato.mezzi[i].km, 10);
+        return isNaN(k) || k <= 0 ? null : k;
+      }
+    }
+    return null;
+  }
+  function numeroItaliano(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  /* Controlla i chilometri inseriti. Restituisce il numero, oppure null
+     se c'e' qualcosa che non va (in quel caso ha gia' avvisato l'autista). */
+  function controllaKm(mezzoScelto) {
+    var grezzo = el("campo-km").value.replace(/[.\s]/g, "").trim();
+    if (!grezzo) { alert("Inserisci i chilometri letti sul contachilometri."); el("campo-km").focus(); return null; }
+    if (!/^\d+$/.test(grezzo)) { alert("I chilometri vanno scritti in cifre, senza lettere."); el("campo-km").focus(); return null; }
+
+    var km = parseInt(grezzo, 10);
+    if (km <= 0) { alert("Inserisci i chilometri letti sul contachilometri."); el("campo-km").focus(); return null; }
+    if (km > 3000000) { alert("Il valore inserito non sembra corretto: ricontrolla il contachilometri."); el("campo-km").focus(); return null; }
+
+    // confronto con l'ultima lettura nota: intercetta le cifre sbagliate
+    var ultimo = ultimiKm(mezzoScelto);
+    if (ultimo) {
+      if (km < ultimo && !confirm(
+            "Hai inserito " + numeroItaliano(km) + " km, meno dell'ultima lettura registrata (" +
+            numeroItaliano(ultimo) + " km).\n\nConfermi il valore?")) {
+        el("campo-km").focus(); return null;
+      }
+      if (km - ultimo > 5000 && !confirm(
+            "Dall'ultimo controllo risultano " + numeroItaliano(km - ultimo) +
+            " km percorsi.\n\nConfermi il valore?")) {
+        el("campo-km").focus(); return null;
+      }
+    }
+    return km;
+  }
+
+  // ---------- svolgimento della checklist ----------
+  function iniziaChecklist() {
+    var sel = el("campo-mezzo"), targa = sel.value;
+    if (targa === "__altro__") {
+      targa = el("campo-targa-libera").value.trim().toUpperCase().replace(/\s+/g, "");
+      if (targa.length < 4) { alert("Inserisci la targa del mezzo."); return; }
+    }
+    if (!targa) { alert("Seleziona il mezzo da controllare."); return; }
+    if (!stato.voci.length) { alert("Elenco verifiche non disponibile. Collegati a internet e riprova."); return; }
+
+    var km = controllaKm(sel.value);
+    if (km === null) return;
+
+    stato.targa = targa; stato.km = km; stato.indice = 0; stato.esiti = [];
+    scrivi(CHIAVI.ultimoMezzo, sel.value === "__altro__" ? "" : targa);
+    mostraVerifica();
+  }
+  function mostraVerifica() {
+    if (stato.indice >= stato.voci.length) return mostraRiepilogo();
+    var n = stato.indice + 1, tot = stato.voci.length;
+    el("num-verifica").textContent = "Verifica " + n + " di " + tot;
+    el("testo-verifica").textContent = stato.voci[stato.indice];
+    el("btn-indietro").classList.toggle("nascosto", stato.indice === 0);
+    avanzamento(Math.round(((n - 1) / tot) * 100));
+    mostra("s-verifica");
+  }
+  function registraEsito(esito, nota) {
+    stato.esiti[stato.indice] = {
+      ordine: stato.indice + 1, voce: stato.voci[stato.indice],
+      esito: esito, nota: nota || ""
+    };
+    stato.indice++;
+    mostraVerifica();
+  }
+  function apriAnomalia() {
+    el("titolo-anomalia").textContent = stato.voci[stato.indice];
+    el("campo-nota").value = (stato.esiti[stato.indice] || {}).nota || "";
+    mostra("s-anomalia");
+    setTimeout(function () { el("campo-nota").focus(); }, 120);
+  }
+  function mostraRiepilogo() {
+    var anomalie = stato.esiti.filter(function (e) { return e.esito === "ANOMALIA"; });
+    el("riepilogo-sotto").textContent = stato.targa + " · " +
+      numeroItaliano(stato.km) + " km · " +
+      (anomalie.length === 0 ? "nessuna anomalia rilevata"
+        : (anomalie.length === 1 ? "1 anomalia segnalata" : anomalie.length + " anomalie segnalate"));
+    var cont = el("elenco-riepilogo");
+    cont.innerHTML = "";
+    stato.esiti.forEach(function (e) {
+      var riga = document.createElement("div"); riga.className = "riga";
+      var voce = document.createElement("div"); voce.className = "voce";
+      var titolo = document.createElement("div"); titolo.textContent = e.voce;
+      voce.appendChild(titolo);
+      if (e.esito === "ANOMALIA" && e.nota) {
+        var nota = document.createElement("div"); nota.className = "nota";
+        nota.textContent = e.nota; voce.appendChild(nota);
+      }
+      var pill = document.createElement("span");
+      pill.className = "pillola " + (e.esito === "OK" ? "ok" : "allarme");
+      pill.textContent = e.esito === "OK" ? "TUTTO OK" : "ANOMALIA";
+      riga.appendChild(voce); riga.appendChild(pill); cont.appendChild(riga);
+    });
+    avanzamento(100);
+    mostra("s-riepilogo");
+  }
+
+  // ---------- invio ----------
+  function inviaChecklist() {
+    var pacco = {
+      codice: CFG.CODICE_APP,
+      uuid: idCasuale(),
+      autista: stato.autista,
+      targa: stato.targa,
+      km: stato.km,
+      dispositivo: leggi(CHIAVI.dispositivo, ""),
+      compilato_il: new Date().toISOString(),
+      esiti: stato.esiti
+    };
+    var bottone = el("btn-invia");
+    bottone.disabled = true; bottone.textContent = "Invio in corso…";
+    inviaUna(pacco)
+      .then(function () { esitoFinale(true); })
+      .catch(function () {
+        var c = coda(); c.push(pacco); scrivi(CHIAVI.coda, c);
+        esitoFinale(false);
+      })
+      .then(function () { bottone.disabled = false; bottone.textContent = "Invia la checklist"; });
+  }
+  function esitoFinale(trasmessa) {
+    var bollo = el("bollo-esito");
+    bollo.textContent = trasmessa ? "✓" : "↻";
+    bollo.classList.toggle("attesa", !trasmessa);
+    el("titolo-esito").textContent = trasmessa ? "Checklist inviata" : "Checklist salvata";
+    el("testo-esito").textContent = trasmessa
+      ? "I dati sono arrivati in ufficio. Buon lavoro."
+      : "Nessun collegamento in questo momento. La checklist è salvata sul telefono e partirà da sola appena torna la linea.";
+    aggiornaAvvisoCoda();
+    mostra("s-esito");
+  }
+
+  // ---------- impostazioni ----------
+  function apriImpostazioni() {
+    el("campo-nome-mod").value = stato.autista;
+    el("stato-collegamento").textContent = "Controllo in corso…";
+    mostra("s-impostazioni");
+    scaricaConfig()
+      .then(function () {
+        el("stato-collegamento").textContent =
+          "Collegato all'ufficio. Checklist in attesa di invio: " + coda().length + ".";
+      })
+      .catch(function () {
+        el("stato-collegamento").textContent =
+          "Nessun collegamento all'ufficio. Checklist in attesa di invio: " + coda().length + ".";
+      });
+  }
+
+  // ---------- eventi ----------
+  el("btn-registra").addEventListener("click", function () {
+    if (registraAutista(el("campo-nome").value)) preparaHome();
+  });
+  el("campo-nome").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") el("btn-registra").click();
+  });
+  el("campo-mezzo").addEventListener("change", aggiornaCampoMezzo);
+  el("campo-km").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); el("btn-inizia").click(); }
+  });
+  el("btn-inizia").addEventListener("click", iniziaChecklist);
+  el("btn-ok").addEventListener("click", function () { registraEsito("OK", ""); });
+  el("btn-anomalia").addEventListener("click", apriAnomalia);
+  el("btn-indietro").addEventListener("click", function () {
+    if (stato.indice > 0) { stato.indice--; mostraVerifica(); }
+  });
+  el("btn-conferma-anomalia").addEventListener("click", function () {
+    var nota = el("campo-nota").value.trim();
+    if (nota.length < 3) { alert("Descrivi brevemente il problema riscontrato."); return; }
+    registraEsito("ANOMALIA", nota);
+  });
+  el("btn-annulla-anomalia").addEventListener("click", function () { mostraVerifica(); });
+  el("btn-invia").addEventListener("click", inviaChecklist);
+  el("btn-annulla-tutto").addEventListener("click", function () {
+    if (confirm("Vuoi annullare questa checklist? I dati inseriti andranno persi.")) preparaHome();
+  });
+  el("btn-fine").addEventListener("click", function () {
+    svuotaCoda();
+    scaricaConfig().catch(function () {}).then(preparaHome);
+  });
+  el("btn-impostazioni").addEventListener("click", apriImpostazioni);
+  el("btn-chiudi-impostazioni").addEventListener("click", preparaHome);
+  el("btn-salva-nome").addEventListener("click", function () {
+    if (registraAutista(el("campo-nome-mod").value)) { alert("Nominativo aggiornato."); preparaHome(); }
+  });
+  el("btn-aggiorna").addEventListener("click", function () {
+    scaricaConfig()
+      .then(function () { alert("Elenco aggiornato."); preparaHome(); })
+      .catch(function () { alert("Non riesco a contattare l'ufficio. Controlla il collegamento a internet e riprova."); });
+  });
+  el("btn-invia-coda").addEventListener("click", function () {
+    svuotaCoda().then(function (n) {
+      alert(n > 0 ? n + " checklist inviate." : "Nessuna checklist inviata: controlla il collegamento.");
+      apriImpostazioni();
+    });
+  });
+  window.addEventListener("online", svuotaCoda);
+
+  // ---------- avvio ----------
+  (function avvia() {
+    var nome = leggi(CHIAVI.autista, "");
+    scaricaConfig().catch(function () { return null; }).then(function () {
+      if (nome) {
+        stato.autista = nome;
+        el("iniziali").textContent = iniziali(nome) || "—";
+        el("sottotitolo").textContent = nome;
+        svuotaCoda();
+        preparaHome();
+      } else {
+        mostra("s-registrazione");
+      }
+    });
+    if ("serviceWorker" in navigator && window.isSecureContext) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+  })();
+})();
+</script>
+</body>
+</html>
